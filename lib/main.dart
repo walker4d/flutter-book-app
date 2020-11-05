@@ -42,19 +42,12 @@ class _HomePageState extends State<HomePage> {
           item["volumeInfo"]["authors"][0],
           item["volumeInfo"]["imageLinks"]["thumbnail"],
           item["volumeInfo"]["imageLinks"]["smallThumbnail"],
-          item["description"],
+          item["volumeInfo"]["description"],
           item["volumeInfo"]["publishedDate"],
           item["volumeInfo"]["subtitle"],
           item["volumeInfo"]["title"]);
 
       Books.add(book);
-      // print(book.id +
-      //     "" +
-      //     book.smallThumbnail +
-      //     " " +
-      //     book.authors +
-      //     "" +
-      //     book.title);
     }
     return Books;
   }
@@ -79,18 +72,29 @@ class _HomePageState extends State<HomePage> {
             builder: (BuildContext context, AsyncSnapshot futureTrunks) {
               if (futureTrunks.hasData) {
                 return ListView.builder(
+//note i named the data future trunks becuase of future and the character trunks
                   scrollDirection: Axis.vertical,
                   shrinkWrap: true,
                   itemCount: futureTrunks.data.length,
                   itemBuilder: (BuildContext context, int index) {
-                    return CustomListItemTwo(
-                      thumbnail:
-                          Image.network(futureTrunks.data[index].thumbnail),
-                      title: futureTrunks.data[index].title,
-                      subtitle: checkNull(
-                          futureTrunks.data[index].subtitle, "no subtitle"),
-                      author: futureTrunks.data[index].authors,
-                      publishDate: futureTrunks.data[index].publishedDate,
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  DetailScreen(book: futureTrunks.data[index])),
+                        );
+                      },
+                      child: CustomListItemTwo(
+                        thumbnail:
+                            Image.network(futureTrunks.data[index].thumbnail),
+                        title: futureTrunks.data[index].title,
+                        subtitle: checkNull(
+                            futureTrunks.data[index].subtitle, "no subtitle"),
+                        author: futureTrunks.data[index].authors,
+                        publishDate: futureTrunks.data[index].publishedDate,
+                      ),
                     );
                   },
                 );
@@ -120,6 +124,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: Color.fromRGBO(244, 243, 243, 1),
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -346,5 +351,113 @@ class _ArticleDescription extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+class DetailScreen extends StatelessWidget {
+  // Declare a field that holds the Todo.
+  final Book book;
+
+  // In the constructor, require a Todo.
+  DetailScreen({Key key, @required this.book}) : super(key: key);
+  checkNull(img, message) {
+    if (img != null) {
+      return img;
+    }
+
+    return message;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Use the Todo to create the UI.
+    return Scaffold(
+        appBar: AppBar(
+          title: Text(this.book.title),
+        ),
+        body: SafeArea(
+          child: Column(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                    image: DecorationImage(
+                        image: NetworkImage(this.book.thumbnail),
+                        fit: BoxFit.cover)),
+                child: Container(
+                  width: double.infinity,
+                  height: 200,
+                  child: Container(
+                    alignment: Alignment(0.0, 2.5),
+                    child: CircleAvatar(
+                      backgroundImage: NetworkImage(this.book.smallThumbnail),
+                      radius: 60.0,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 60,
+              ),
+              Container(
+                height: 60,
+                child: Text(
+                  checkNull(this.book.title, "no title"),
+                  style: TextStyle(
+                      fontSize: 25.0,
+                      color: Colors.blueGrey,
+                      letterSpacing: 2.0,
+                      fontWeight: FontWeight.w400),
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Text(
+                checkNull("by " + this.book.authors, " no author"),
+                style: TextStyle(
+                    fontSize: 18.0,
+                    color: Colors.black45,
+                    letterSpacing: 2.0,
+                    fontWeight: FontWeight.w300),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Text(
+                "",
+                style: TextStyle(
+                    fontSize: 15.0,
+                    color: Colors.black45,
+                    letterSpacing: 2.0,
+                    fontWeight: FontWeight.w300),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              SizedBox(
+                height: 15,
+              ),
+              Container(
+                height: 240,
+                child: Text(
+                  checkNull(
+                      this.book.description, " this book has no description"),
+                  style: TextStyle(
+                      fontSize: 18.0,
+                      color: Colors.black45,
+                      letterSpacing: 2.0,
+                      fontWeight: FontWeight.w300),
+                ),
+              ),
+              SizedBox(
+                height: 50,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [],
+              )
+            ],
+          ),
+        ));
   }
 }
